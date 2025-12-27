@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "user@nutmilk.com",
+      "password": "123456",
+      "name": "Nguyễn Văn A"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Sữa Hạnh Nhân",
+      "price": 65000,
+      "image": "/almond.png"
+    },
+    {
+      "id": 2,
+      "name": "Sữa Óc Chó",
+      "price": 72000,
+      "image": "/walnut.png"
+    }
+  ],
+  "cart": []
+}
