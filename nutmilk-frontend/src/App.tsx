@@ -10,7 +10,10 @@ import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 
 // ADMIN
-import ProductAdmin from "./pages/ProductAdmin";
+import ProductAdmin from "./pages/admin/ProductAdmin";
+import InventoryAdmin from "./pages/admin/InventoryAdmin";
+import ImportAdmin from "./pages/admin/ImportAdmin";
+import Dashboard from "./pages/admin/Dashboard";
 
 export default function App() {
   return (
@@ -41,6 +44,9 @@ export default function App() {
 
       {/* ===== ADMIN ===== */}
       <Route path="/admin/products" element={<ProductAdmin />} />
+      <Route path="/admin/inventory" element={<InventoryAdmin />} />
+      <Route path="/admin/import" element={<ImportAdmin />} />
+      <Route path="/admin/dashboard" element={<Dashboard />} />
 
       {/* ===== AUTH ===== */}
       <Route path="/login" element={<Login />} />
