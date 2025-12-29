@@ -1,33 +1,26 @@
 import { useEffect, useState } from "react";
-import { AdminCategoryService } from "../../../services/adminCategory.service";
 import { AdminProductService } from "../../../services/adminProduct.service";
 
 type Props = {
-  product?: any;
-  onSuccess?: () => void;
+  product?: any | null;
+  categories?: any[];
+  onSuccess: () => void;
 };
 
-export default function ProductForm({ product, onSuccess }: Props) {
+export default function ProductForm({
+  product,
+  categories = [], // 🔥 CỐ ĐỊNH KHÔNG BAO GIỜ undefined
+  onSuccess,
+}: Props) {
   const [tenSanPham, setTenSanPham] = useState("");
   const [giaBan, setGiaBan] = useState<number>(0);
   const [moTa, setMoTa] = useState("");
-  const [maDanhMuc, setMaDanhMuc] = useState<string>("");
+  const [maDanhMuc, setMaDanhMuc] = useState<number | null>(null);
 
-  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 IMAGE STATE
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>("");
-
-  /* =======================
-     LOAD DANH MỤC
-  ======================= */
-  useEffect(() => {
-    AdminCategoryService.getAll().then((res) => {
-      setCategories(res.data);
-    });
-  }, []);
+  const [preview, setPreview] = useState("");
 
   /* =======================
      ĐỔ DATA KHI EDIT
@@ -37,9 +30,8 @@ export default function ProductForm({ product, onSuccess }: Props) {
       setTenSanPham(product.tenSanPham ?? "");
       setGiaBan(product.giaBan ?? 0);
       setMoTa(product.moTa ?? "");
-      setMaDanhMuc(product.maDanhMuc != null ? String(product.maDanhMuc) : "");
+      setMaDanhMuc(product.maDanhMuc ?? null);
 
-      // 🔥 preview ảnh cũ
       if (product.hinhAnh) {
         setPreview(`http://localhost:8080${product.hinhAnh}`);
       }
@@ -47,7 +39,7 @@ export default function ProductForm({ product, onSuccess }: Props) {
       setTenSanPham("");
       setGiaBan(0);
       setMoTa("");
-      setMaDanhMuc("");
+      setMaDanhMuc(null);
       setImageFile(null);
       setPreview("");
     }
@@ -69,7 +61,7 @@ export default function ProductForm({ product, onSuccess }: Props) {
     let imageUrl = product?.hinhAnh || "";
 
     try {
-      /* ========= UPLOAD IMAGE ========= */
+      /* ===== UPLOAD IMAGE ===== */
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
@@ -82,15 +74,19 @@ export default function ProductForm({ product, onSuccess }: Props) {
           }
         );
 
+        if (!res.ok) {
+          throw new Error("Upload ảnh thất bại");
+        }
+
         imageUrl = await res.text();
       }
 
-      /* ========= SAVE PRODUCT ========= */
+      /* ===== SAVE PRODUCT ===== */
       const payload = {
         tenSanPham,
         giaBan,
         moTa,
-        maDanhMuc: Number(maDanhMuc),
+        maDanhMuc: Number(maDanhMuc), // ✅ ép kiểu chắc chắn
         hinhAnh: imageUrl,
       };
 
@@ -100,11 +96,10 @@ export default function ProductForm({ product, onSuccess }: Props) {
         await AdminProductService.create(payload);
       }
 
-      alert("Lưu thành công");
-      onSuccess?.();
-    } catch (error: any) {
-      console.error("SAVE PRODUCT ERROR:", error?.response?.data || error);
-      alert(error?.response?.data?.message || "Có lỗi xảy ra khi lưu sản phẩm");
+      onSuccess();
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi khi lưu sản phẩm");
     } finally {
       setLoading(false);
     }
@@ -118,9 +113,9 @@ export default function ProductForm({ product, onSuccess }: Props) {
 
       {/* TÊN */}
       <div>
-        <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
+        <label className="block text-sm mb-1">Tên sản phẩm</label>
         <input
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full border rounded px-3 py-2"
           value={tenSanPham}
           onChange={(e) => setTenSanPham(e.target.value)}
           required
@@ -129,10 +124,10 @@ export default function ProductForm({ product, onSuccess }: Props) {
 
       {/* GIÁ */}
       <div>
-        <label className="block text-sm font-medium mb-1">Giá bán</label>
+        <label className="block text-sm mb-1">Giá bán</label>
         <input
           type="number"
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full border rounded px-3 py-2"
           value={giaBan}
           onChange={(e) => setGiaBan(Number(e.target.value))}
           min={0}
@@ -142,37 +137,41 @@ export default function ProductForm({ product, onSuccess }: Props) {
 
       {/* MÔ TẢ */}
       <div>
-        <label className="block text-sm font-medium mb-1">Mô tả</label>
+        <label className="block text-sm mb-1">Mô tả</label>
         <textarea
-          className="w-full rounded-md border px-3 py-2 text-sm"
+          className="w-full border rounded px-3 py-2"
           value={moTa}
           onChange={(e) => setMoTa(e.target.value)}
-          rows={3}
         />
       </div>
 
       {/* DANH MỤC */}
       <div>
-        <label className="block text-sm font-medium mb-1">Danh mục</label>
+        <label className="block text-sm mb-1">Danh mục</label>
         <select
-          className="w-full rounded-md border px-3 py-2 text-sm"
-          value={maDanhMuc}
-          onChange={(e) => setMaDanhMuc(e.target.value)}
+          className="w-full border rounded px-3 py-2"
+          value={maDanhMuc ?? ""}
+          onChange={(e) =>
+            setMaDanhMuc(e.target.value ? Number(e.target.value) : null)
+          }
         >
           <option value="">-- Chọn danh mục --</option>
-          {categories.map((c) => (
-            <option key={c.maDanhMuc} value={String(c.maDanhMuc)}>
-              {c.tenDanhMuc}
-            </option>
-          ))}
+
+          {categories.length === 0 ? (
+            <option disabled>Chưa có danh mục</option>
+          ) : (
+            categories.map((c) => (
+              <option key={c.maDanhMuc} value={c.maDanhMuc}>
+                {c.tenDanhMuc}
+              </option>
+            ))
+          )}
         </select>
       </div>
 
-      {/* 🔥 UPLOAD IMAGE */}
+      {/* IMAGE */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Hình ảnh sản phẩm
-        </label>
+        <label className="block text-sm mb-1">Hình ảnh</label>
         <input
           type="file"
           accept="image/*"
@@ -186,17 +185,17 @@ export default function ProductForm({ product, onSuccess }: Props) {
         {preview && (
           <img
             src={preview}
-            className="mt-2 h-24 w-24 rounded-lg object-cover border"
+            className="mt-2 h-24 w-24 object-cover rounded border"
           />
         )}
       </div>
 
       {/* ACTION */}
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end">
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-60"
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
         >
           {loading ? "Đang lưu..." : "Lưu"}
         </button>

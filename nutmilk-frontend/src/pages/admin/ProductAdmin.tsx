@@ -1,36 +1,48 @@
 import { useEffect, useState } from "react";
-import ProductTable from "../../components/admin/product/ProductTable";
-import ProductForm from "../../components/admin/product/ProductForm";
 import Modal from "../../components/admin/common/Modal";
-import { AdminProductService } from "../../services/adminProduct.service";
+import ProductForm from "../../components/admin/product/ProductForm";
+import ProductTable from "../../components/admin/product/ProductTable";
 import { AdminCategoryService } from "../../services/adminCategory.service";
+import { AdminProductService } from "../../services/adminProduct.service";
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
   /* =======================
-     LOAD DATA
+     LOAD PRODUCTS
   ======================= */
   const loadProducts = async () => {
     try {
       setLoading(true);
       const res = await AdminProductService.getAll();
-      setProducts(res.data);
+      setProducts(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("LOAD PRODUCTS ERROR:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  /* =======================
+     LOAD CATEGORIES
+  ======================= */
   const loadCategories = async () => {
-    const res = await AdminCategoryService.getAll();
-    setCategories(res.data);
+    try {
+      setLoadingCategory(true);
+      const res = await AdminCategoryService.getAll();
+      setCategories(res.data || []);
+    } catch (err) {
+      console.error("LOAD CATEGORIES ERROR:", err);
+      setCategories([]);
+    } finally {
+      setLoadingCategory(false);
+    }
   };
 
   useEffect(() => {
@@ -42,6 +54,12 @@ export default function ProductAdmin() {
      HANDLERS
   ======================= */
   const handleCreate = () => {
+    // ❗ chặn mở modal khi chưa có danh mục
+    if (!loadingCategory && categories.length === 0) {
+      alert("Chưa có danh mục, vui lòng tạo danh mục trước");
+      return;
+    }
+
     setSelectedProduct(null);
     setShowModal(true);
   };
@@ -58,7 +76,7 @@ export default function ProductAdmin() {
 
   return (
     <div className="space-y-4">
-      {/* HEADER – CHỈ 1 NÚT THÊM */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Kho Sản Phẩm</h1>
@@ -69,7 +87,8 @@ export default function ProductAdmin() {
 
         <button
           onClick={handleCreate}
-          className="rounded-md bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
+          disabled={loadingCategory}
+          className="rounded-md bg-green-600 px-4 py-2 text-sm text-white disabled:opacity-60"
         >
           + Thêm sản phẩm
         </button>
@@ -88,9 +107,10 @@ export default function ProductAdmin() {
         <Modal onClose={handleCloseModal}>
           <ProductForm
             product={selectedProduct}
+            categories={categories} // ✅ LUÔN LÀ MẢNG
             onSuccess={() => {
               handleCloseModal();
-              loadProducts(); // 🔥 reload bảng
+              loadProducts();
             }}
           />
         </Modal>

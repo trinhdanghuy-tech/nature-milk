@@ -27,7 +27,7 @@ export default function AdminSidebar() {
 
       {/* NAV */}
       <nav className="px-4 space-y-1">
-        <AdminNavItem to="/admin" label="Tổng quan" icon="📊" />
+        <AdminNavItem to="/admin/dashboard" label="Tổng quan" icon="📊" />
         <AdminNavItem to="/admin/products" label="Sản phẩm" icon="📦" />
         <AdminNavItem to="/admin/inventory" label="Kho hàng" icon="🏬" />
         <AdminNavItem to="/admin/import" label="Nhập kho" icon="📥" />
