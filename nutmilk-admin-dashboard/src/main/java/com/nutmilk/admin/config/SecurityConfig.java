@@ -13,19 +13,29 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private SimpleAuthenticationFilter simpleAuthenticationFilter;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // 🔥 BẬT CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .csrf(csrf -> csrf.disable())
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().permitAll()
-                );
+                        // Admin/Manager/Staff can access admin APIs
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
+                        .requestMatchers("/api/auth/**", "/api/public/**").permitAll() // Public
+                        .requestMatchers("/uploads/**").permitAll() // Images
+                        .anyRequest().authenticated() // Others need login
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler))
+                .addFilterBefore(simpleAuthenticationFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

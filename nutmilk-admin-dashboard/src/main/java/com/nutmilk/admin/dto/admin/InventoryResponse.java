@@ -2,40 +2,40 @@ package com.nutmilk.admin.dto.admin;
 
 public class InventoryResponse {
 
-    private Integer maSanPham;
-    private String tenSanPham;
-    private Integer soLuongTon;
-    private String trangThai;
+    private Long productId;
+    private String productName;
+    private Integer quantity;
+    private String status;
 
-    public Integer getMaSanPham() {
-        return maSanPham;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setMaSanPham(Integer maSanPham) {
-        this.maSanPham = maSanPham;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public String getTenSanPham() {
-        return tenSanPham;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setTenSanPham(String tenSanPham) {
-        this.tenSanPham = tenSanPham;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public Integer getSoLuongTon() {
-        return soLuongTon;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setSoLuongTon(Integer soLuongTon) {
-        this.soLuongTon = soLuongTon;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
-    public String getTrangThai() {
-        return trangThai;
+    public String getStatus() {
+        return status;
     }
 
-    public void setTrangThai(String trangThai) {
-        this.trangThai = trangThai;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

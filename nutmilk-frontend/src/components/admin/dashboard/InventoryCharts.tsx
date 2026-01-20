@@ -14,18 +14,18 @@ import {
 export default function InventoryCharts({ data }: { data: any[] }) {
   const statusData = [
     {
-      name: "Còn hàng",
-      value: data.filter(i => i.trangThai === "CON_HANG").length,
+      name: "In Stock",
+      value: data.filter(i => i.status === "IN_STOCK" || i.status === "CON_HANG").length,
       color: "#22c55e",
     },
     {
-      name: "Sắp hết",
-      value: data.filter(i => i.trangThai === "SAP_HET").length,
+      name: "Low Stock",
+      value: data.filter(i => i.status === "LOW_STOCK" || i.status === "SAP_HET").length,
       color: "#f97316",
     },
     {
-      name: "Hết hàng",
-      value: data.filter(i => i.trangThai === "HET_HANG").length,
+      name: "Out of Stock",
+      value: data.filter(i => i.status === "OUT_OF_STOCK" || i.status === "HET_HANG").length,
       color: "#ef4444",
     },
   ];
@@ -41,7 +41,7 @@ export default function InventoryCharts({ data }: { data: any[] }) {
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data}>
             <XAxis
-              dataKey="tenSanPham"
+              dataKey="productName"
               tick={{ fontSize: 12 }}
               interval={0}
               angle={-15}
@@ -51,7 +51,7 @@ export default function InventoryCharts({ data }: { data: any[] }) {
             <YAxis />
             <Tooltip />
             <Bar
-              dataKey="soLuongTon"
+              dataKey="quantity"
               fill="#22c55e"
               radius={[6, 6, 0, 0]}
             />

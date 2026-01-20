@@ -1,7 +1,7 @@
 package com.nutmilk.admin.controller.admin;
 
 import com.nutmilk.admin.dto.admin.CategoryRequest;
-import com.nutmilk.admin.entity.DanhMucSanPham;
+import com.nutmilk.admin.entity.Category;
 import com.nutmilk.admin.service.admin.CategoryAdminService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,25 +19,24 @@ public class CategoryAdminController {
     }
 
     @GetMapping
-    public List<DanhMucSanPham> getAll() {
+    public List<Category> getAll() {
         return service.getAll();
     }
 
     @PostMapping
-    public DanhMucSanPham create(@RequestBody CategoryRequest request) {
+    public Category create(@RequestBody CategoryRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public DanhMucSanPham update(
-            @PathVariable Integer id,
-            @RequestBody CategoryRequest request
-    ) {
+    public Category update(
+            @PathVariable Long id,
+            @RequestBody CategoryRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Long id) {
         service.delete(id);
     }
 }

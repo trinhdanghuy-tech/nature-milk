@@ -1,87 +1,109 @@
+import { useEffect, useState } from "react";
+import AdminLayout from "../../components/layout/AdminLayout";
+import { AdminStaffService } from "../../services/adminStaff.service";
+
 export default function StaffAdmin() {
-  const staffs = [
-    {
-      id: "NV001",
-      name: "Đăng Huy",
-      role: "Quản trị viên",
-      phone: "0123 456 789",
-      status: "ACTIVE",
-    },
-    {
-      id: "NV002",
-      name: "Nguyễn An",
-      role: "Nhân viên kho",
-      phone: "0987 654 321",
-      status: "ACTIVE",
-    },
-    {
-      id: "NV003",
-      name: "Trần Bình",
-      role: "Bán hàng",
-      phone: "0909 888 777",
-      status: "INACTIVE",
-    },
-  ];
+  const [staffs, setStaffs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const res = await AdminStaffService.getAllStaff();
+      if (Array.isArray(res)) {
+        setStaffs(res);
+      } else {
+        console.warn("API returned non-array for staff list:", res);
+        setStaffs([]);
+      }
+    } catch (e) {
+      console.error(e);
+      setStaffs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getName = (s: any) => s?.fullName || s?.username || "Unknown";
+  const getInitial = (s: any) => {
+    const name = getName(s);
+    return name.charAt(0).toUpperCase();
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Nhân viên</h1>
-          <p className="text-sm text-gray-500">
-            Quản lý danh sách nhân viên (mock)
-          </p>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Nhân viên</h1>
+            <p className="text-sm text-gray-500">
+              Quản lý danh sách nhân viên
+            </p>
+          </div>
+
+          <button className="rounded-md bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700 transition">
+            + Thêm nhân viên
+          </button>
         </div>
 
-        <button className="rounded-md bg-green-600 px-4 py-2 text-sm text-white">
-          + Thêm nhân viên
-        </button>
+        <div className="rounded-xl bg-white shadow overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">Loading...</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left">ID</th>
+                  <th className="px-6 py-4 text-left">Tên</th>
+                  <th className="px-6 py-4 text-left">Email</th>
+                  <th className="px-6 py-4 text-center">Chức vụ</th>
+                  <th className="px-6 py-4 text-center">SĐT</th>
+                  <th className="px-6 py-4 text-right">Hành động</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {staffs.map((s) => (
+                  <tr key={s?.id || Math.random()} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 text-gray-500">#{s?.id}</td>
+                    <td className="px-6 py-4 font-medium flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold uppercase text-xs">
+                        {getInitial(s)}
+                      </div>
+                      {getName(s)}
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{s?.email}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s?.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' :
+                          s?.role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                        }`}>
+                        {s?.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center text-gray-600">
+                      {s?.phone || "—"}
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      <button className="text-blue-600 hover:text-blue-900 font-medium">Sửa</button>
+                      <button className="text-red-600 hover:text-red-900 font-medium">Khoá</button>
+                    </td>
+                  </tr>
+                ))}
+                {staffs.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-gray-500">
+                      Chưa có nhân viên nào.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
-
-      <div className="rounded-xl bg-white shadow">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left">Mã NV</th>
-              <th className="px-4 py-3 text-left">Tên</th>
-              <th className="px-4 py-3">Chức vụ</th>
-              <th className="px-4 py-3">SĐT</th>
-              <th className="px-4 py-3">Trạng thái</th>
-              <th className="px-4 py-3 text-right">Hành động</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {staffs.map((s) => (
-              <tr key={s.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{s.id}</td>
-                <td className="px-4 py-3">{s.name}</td>
-                <td className="px-4 py-3 text-center">{s.role}</td>
-                <td className="px-4 py-3 text-center">{s.phone}</td>
-                <td className="px-4 py-3 text-center">
-                  {s.status === "ACTIVE" ? (
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">
-                      Hoạt động
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-gray-200 px-3 py-1 text-xs text-gray-600">
-                      Nghỉ
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button className="mr-2 rounded border px-3 py-1 text-xs hover:bg-gray-100">
-                    Sửa
-                  </button>
-                  <button className="rounded border border-red-400 px-3 py-1 text-xs text-red-600 hover:bg-red-50">
-                    Khoá
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }

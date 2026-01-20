@@ -3,49 +3,49 @@ package com.nutmilk.admin.dto.admin;
 import java.math.BigDecimal;
 
 public class ProductRequest {
-    private String tenSanPham;
-    private BigDecimal giaBan;
-    private String moTa;
-    private Integer maDanhMuc;
-    private String hinhAnh;
+    private String name;
+    private BigDecimal price;
+    private String description;
+    private Long categoryId;
+    private String image;
 
-    public String getTenSanPham() {
-        return tenSanPham;
+    public String getName() {
+        return name;
     }
 
-    public void setTenSanPham(String tenSanPham) {
-        this.tenSanPham = tenSanPham;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public BigDecimal getGiaBan() {
-        return giaBan;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setGiaBan(BigDecimal giaBan) {
-        this.giaBan = giaBan;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
-    public String getMoTa() {
-        return moTa;
+    public String getDescription() {
+        return description;
     }
 
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Integer getMaDanhMuc() {
-        return maDanhMuc;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setMaDanhMuc(Integer maDanhMuc) {
-        this.maDanhMuc = maDanhMuc;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public String getHinhAnh() {
-        return hinhAnh;
+    public String getImage() {
+        return image;
     }
 
-    public void setHinhAnh(String hinhAnh) {
-        this.hinhAnh = hinhAnh;
+    public void setImage(String image) {
+        this.image = image;
     }
 }

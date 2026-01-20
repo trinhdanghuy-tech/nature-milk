@@ -1,5 +1,10 @@
 import InventoryTable from "../../components/admin/inventory/InventoryTable";
+import AdminLayout from "../../components/layout/AdminLayout";
 
 export default function InventoryAdmin() {
-  return <InventoryTable />;
+  return (
+    <AdminLayout>
+      <InventoryTable />
+    </AdminLayout>
+  );
 }

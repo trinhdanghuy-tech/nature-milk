@@ -2,22 +2,22 @@ package com.nutmilk.admin.dto.admin;
 
 public class CategoryRequest {
 
-    private String tenDanhMuc;
-    private String moTa;
+    private String name;
+    private String description;
 
-    public String getTenDanhMuc() {
-        return tenDanhMuc;
+    public String getName() {
+        return name;
     }
 
-    public void setTenDanhMuc(String tenDanhMuc) {
-        this.tenDanhMuc = tenDanhMuc;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getMoTa() {
-        return moTa;
+    public String getDescription() {
+        return description;
     }
 
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

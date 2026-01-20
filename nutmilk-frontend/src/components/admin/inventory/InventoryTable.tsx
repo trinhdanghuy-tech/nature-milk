@@ -12,13 +12,13 @@ export default function InventoryTable() {
   }, []);
 
   const totalProduct = items.length;
-  const outOfStock = items.filter((i) => i.trangThai === "HET_HANG").length;
-  const lowStock = items.filter((i) => i.trangThai === "SAP_HET").length;
+  const outOfStock = items.filter((i) => i.status === "OUT_OF_STOCK").length;
+  const lowStock = items.filter((i) => i.status === "LOW_STOCK").length;
 
   if (loading) {
     return (
       <div className="rounded-xl bg-white p-8 shadow-sm text-gray-500">
-        Đang tải dữ liệu kho…
+        Loading inventory...
       </div>
     );
   }
@@ -27,17 +27,17 @@ export default function InventoryTable() {
     <div className="space-y-6">
       {/* ===== HEADER ===== */}
       <div className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white shadow-sm">
-        <h1 className="text-2xl font-bold">Kho hàng</h1>
+        <h1 className="text-2xl font-bold">Inventory</h1>
         <p className="mt-1 text-sm text-blue-100">
-          Theo dõi tồn kho và cảnh báo sản phẩm
+          Monitor stock levels and alerts
         </p>
       </div>
 
       {/* ===== STATS ===== */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard title="Tổng sản phẩm" value={totalProduct} color="blue" />
-        <StatCard title="Hết hàng" value={outOfStock} color="red" />
-        <StatCard title="Sắp hết" value={lowStock} color="yellow" />
+        <StatCard title="Total Products" value={totalProduct} color="blue" />
+        <StatCard title="Out of Stock" value={outOfStock} color="red" />
+        <StatCard title="Low Stock" value={lowStock} color="yellow" />
       </div>
 
       {/* ===== TABLE ===== */}
@@ -46,31 +46,31 @@ export default function InventoryTable() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">
-                Mã SP
+                Product ID
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600">
-                Sản phẩm
+                Product Name
               </th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600">
-                Tồn kho
+                Stock
               </th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600">
-                Trạng thái
+                Status
               </th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {items.map((item) => (
-              <tr key={item.maSanPham} className="hover:bg-gray-50 transition">
+              <tr key={item.productId} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4 text-sm text-gray-700">
-                  #{item.maSanPham}
+                  #{item.productId}
                 </td>
-                <td className="px-6 py-4 font-medium">{item.tenSanPham}</td>
+                <td className="px-6 py-4 font-medium">{item.productName}</td>
                 <td className="px-6 py-4 text-right text-sm">
-                  {item.soLuongTon}
+                  {item.quantity}
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <StatusBadge status={item.trangThai} />
+                  <StatusBadge status={item.status} />
                 </td>
               </tr>
             ))}
@@ -81,10 +81,7 @@ export default function InventoryTable() {
                   <div className="flex flex-col items-center gap-2 text-gray-400">
                     <span className="text-2xl">📦</span>
                     <span className="text-sm font-medium">
-                      Chưa có dữ liệu kho
-                    </span>
-                    <span className="text-xs">
-                      Hãy thêm sản phẩm hoặc nhập kho
+                      No inventory data
                     </span>
                   </div>
                 </td>
@@ -97,28 +94,28 @@ export default function InventoryTable() {
   );
 }
 
-/* ===== COMPONENT PHỤ ===== */
+/* ===== SUB COMPONENTS ===== */
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === "HET_HANG") {
+  if (status === "OUT_OF_STOCK" || status === "HET_HANG") {
     return (
       <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-        Hết hàng
+        Out of Stock
       </span>
     );
   }
 
-  if (status === "SAP_HET") {
+  if (status === "LOW_STOCK" || status === "SAP_HET") {
     return (
       <span className="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">
-        Sắp hết
+        Low Stock
       </span>
     );
   }
 
   return (
     <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-      Còn hàng
+      In Stock
     </span>
   );
 }

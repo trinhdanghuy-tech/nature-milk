@@ -1,19 +1,33 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout";
-import { loginFake } from "../utils/auth";
+import AuthService from "../services/auth.service";
+import { useState } from "react";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const from = location.state?.from?.pathname || "/";
-
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    try {
+      await AuthService.login({ username, password });
 
-    loginFake("user@email.com");
+      // Get user role
+      const currentUser = AuthService.getCurrentUser();
+      const role = currentUser?.role; // Adjust based on actual string/object
 
-    navigate("/dashboard", { replace: true });
+      // Redirect based on role
+      if (role === "ADMIN" || role?.name === "ADMIN") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Đăng nhập thất bại! Kiểm tra lại thông tin.");
+    }
   }
 
   return (
@@ -28,20 +42,51 @@ export default function Login() {
 
       <form onSubmit={handleLogin} className="space-y-4 mt-6">
         <input
-          type="email"
-          placeholder="Email"
+          type="text"
+          placeholder="Tên đăng nhập"
           className="w-full rounded-full bg-gray-100 px-4 py-3"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
 
         <input
           type="password"
           placeholder="Mật khẩu"
           className="w-full rounded-full bg-gray-100 px-4 py-3"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <button className="w-full bg-green-500 text-white py-3 rounded-full">
           Đăng nhập
         </button>
+
+        {/* OAUTH2 */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">Hoặc tiếp tục với</span>
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <a
+            href="http://localhost:8080/oauth2/authorization/google"
+            className="flex-1 flex items-center justify-center gap-2 border rounded-full py-2 hover:bg-gray-50 bg-white shadow-sm"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+            <span className="text-sm font-medium">Google</span>
+          </a>
+          <a
+            href="http://localhost:8080/oauth2/authorization/facebook"
+            className="flex-1 flex items-center justify-center gap-2 border rounded-full py-2 hover:bg-gray-50 bg-white shadow-sm"
+          >
+            <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" className="w-5 h-5" alt="Facebook" />
+            <span className="text-sm font-medium">Facebook</span>
+          </a>
+        </div>
       </form>
 
       <div className="mt-6 text-center text-sm">

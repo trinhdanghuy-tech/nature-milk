@@ -1,17 +1,17 @@
 package com.nutmilk.admin.service.admin;
 
 import com.nutmilk.admin.dto.admin.ProductRequest;
-import com.nutmilk.admin.entity.SanPham;
+import com.nutmilk.admin.entity.Product;
 
 import java.util.List;
 
 public interface ProductAdminService {
 
-    List<SanPham> getAll();
+    List<Product> getAll();
 
-    SanPham create(ProductRequest request);
+    Product create(ProductRequest request);
 
-    SanPham update(Integer id, ProductRequest request);
+    Product update(Long id, ProductRequest request);
 
-    void delete(Integer id);
+    void delete(Long id);
 }

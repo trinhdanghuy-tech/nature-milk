@@ -1,7 +1,7 @@
 package com.nutmilk.admin.controller.admin;
 
 import com.nutmilk.admin.dto.admin.ProductRequest;
-import com.nutmilk.admin.entity.SanPham;
+import com.nutmilk.admin.entity.Product;
 import com.nutmilk.admin.service.admin.ProductAdminService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,27 +19,24 @@ public class ProductAdminController {
     }
 
     @GetMapping
-    public List<SanPham> getAll() {
+    public List<Product> getAll() {
         return service.getAll();
     }
 
-    // 🔴 BẮT BUỘC PHẢI CÓ
     @PostMapping
-    public SanPham create(@RequestBody ProductRequest request) {
+    public Product create(@RequestBody ProductRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public SanPham update(
-            @PathVariable Integer id,
-            @RequestBody ProductRequest request
-    ) {
+    public Product update(
+            @PathVariable Long id,
+            @RequestBody ProductRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Long id) {
         service.delete(id);
     }
 }
-

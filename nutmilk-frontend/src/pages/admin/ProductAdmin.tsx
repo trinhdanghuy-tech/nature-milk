@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import Modal from "../../components/admin/common/Modal";
+import AdminModal from "../../components/admin/common/AdminModal";
 import ProductForm from "../../components/admin/product/ProductForm";
 import ProductTable from "../../components/admin/product/ProductTable";
 import { AdminCategoryService } from "../../services/adminCategory.service";
 import { AdminProductService } from "../../services/adminProduct.service";
+import AdminLayout from "../../components/layout/AdminLayout";
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -19,13 +19,12 @@ export default function ProductAdmin() {
   ======================= */
   const loadProducts = async () => {
     try {
-      setLoading(true);
       const res = await AdminProductService.getAll();
       setProducts(res.data || []);
     } catch (err) {
       console.error("LOAD PRODUCTS ERROR:", err);
     } finally {
-      setLoading(false);
+      // done
     }
   };
 
@@ -75,46 +74,53 @@ export default function ProductAdmin() {
   };
 
   return (
-    <div className="space-y-4">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Kho Sản Phẩm</h1>
-          <p className="text-sm text-gray-500">
-            Quản lý danh sách sản phẩm và tồn kho
-          </p>
+    <AdminLayout>
+      <div className="space-y-4">
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Kho Sản Phẩm</h1>
+            <p className="text-sm text-gray-500">
+              Quản lý danh sách sản phẩm và tồn kho
+            </p>
+          </div>
+
+          <button
+            onClick={handleCreate}
+            disabled={loadingCategory}
+            className="rounded-md bg-green-600 px-4 py-2 text-sm text-white disabled:opacity-60"
+          >
+            + Thêm sản phẩm
+          </button>
         </div>
 
-        <button
-          onClick={handleCreate}
-          disabled={loadingCategory}
-          className="rounded-md bg-green-600 px-4 py-2 text-sm text-white disabled:opacity-60"
-        >
-          + Thêm sản phẩm
-        </button>
+        {/* TABLE */}
+        <ProductTable
+          products={products}
+          onEdit={handleEdit}
+          onDelete={(id) => {
+            if (confirm("Bạn có chắc chắn muốn xóa?")) {
+              AdminProductService.delete(id).then(() => {
+                loadProducts();
+              });
+            }
+          }}
+        />
+
+        {/* MODAL */}
+        {showModal && (
+          <AdminModal isOpen={true} onClose={handleCloseModal}>
+            <ProductForm
+              product={selectedProduct}
+              categories={categories}
+              onSuccess={() => {
+                handleCloseModal();
+                loadProducts();
+              }}
+            />
+          </AdminModal>
+        )}
       </div>
-
-      {/* TABLE */}
-      <ProductTable
-        products={products}
-        categories={categories}
-        loading={loading}
-        onEdit={handleEdit}
-      />
-
-      {/* MODAL */}
-      {showModal && (
-        <Modal onClose={handleCloseModal}>
-          <ProductForm
-            product={selectedProduct}
-            categories={categories} // ✅ LUÔN LÀ MẢNG
-            onSuccess={() => {
-              handleCloseModal();
-              loadProducts();
-            }}
-          />
-        </Modal>
-      )}
-    </div>
+    </AdminLayout>
   );
 }

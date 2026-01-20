@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-import { getUser, logoutFake } from "../../utils/auth";
+import AuthService from "../../services/auth.service";
 import { useCart } from "../../hooks/useCart";
 import { useState } from "react";
 
 export default function Header() {
   const { count } = useCart();
   const navigate = useNavigate();
-  const user = getUser();
+  const user = AuthService.getCurrentUser();
   const [open, setOpen] = useState(false);
 
   return (
@@ -88,9 +88,10 @@ export default function Header() {
 
                   <button
                     onClick={() => {
-                      logoutFake();
+                      AuthService.logout();
                       setOpen(false);
                       navigate("/");
+                      window.location.reload(); // Reload to clear state/cart
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
                   >

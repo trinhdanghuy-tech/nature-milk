@@ -15,20 +15,20 @@ export default function InventoryAlertTable({ data }: { data: any[] }) {
         </thead>
         <tbody>
           {data.map(item => (
-            <tr key={item.maSanPham} className="border-t">
-              <td className="px-6 py-3">{item.tenSanPham}</td>
+            <tr key={item.productId} className="border-t">
+              <td className="px-6 py-3">{item.productName}</td>
               <td className="px-6 py-3 text-right">
-                {item.soLuongTon}
+                {item.quantity}
               </td>
               <td className="px-6 py-3 text-center">
-                {item.trangThai === "HET_HANG" && (
+                {(item.status === "OUT_OF_STOCK" || item.status === "HET_HANG") && (
                   <span className="rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-600">
-                    Hết hàng
+                    Out of Stock
                   </span>
                 )}
-                {item.trangThai === "SAP_HET" && (
+                {(item.status === "LOW_STOCK" || item.status === "SAP_HET") && (
                   <span className="rounded bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-600">
-                    Sắp hết
+                    Low Stock
                   </span>
                 )}
               </td>

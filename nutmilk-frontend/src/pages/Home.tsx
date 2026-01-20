@@ -1,44 +1,22 @@
+import { useEffect, useState } from "react";
+import ProductService from "../services/product.service";
 import heroImg from "../assets/hero.png";
-import almondImg from "../assets/products/almond.png";
-import fiveMix from "../assets/products/five-mix.png";
-import walnutImg from "../assets/products/oat.png";
-import oatImg from "../assets/products/walnut.png";
-
 import blog1 from "../assets/blog/blog1.png";
 import blog2 from "../assets/blog/blog2.png";
 import blog3 from "../assets/blog/blog3.png";
 
 import { useCart } from "../hooks/useCart";
+import { useNavigate } from "react-router-dom";
+import AuthService from "../services/auth.service";
 
 export default function Home() {
   const { add } = useCart();
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<any[]>([]);
 
-  const products = [
-    {
-      id: "almond",
-      img: almondImg,
-      name: "Sữa Hạnh Nhân",
-      price: 120000,
-    },
-    {
-      id: "oat",
-      img: oatImg,
-      name: "Sữa Yến Mạch",
-      price: 110000,
-    },
-    {
-      id: "walnut",
-      img: walnutImg,
-      name: "Sữa Óc Chó",
-      price: 135000,
-    },
-    {
-      id: "mix",
-      img: fiveMix,
-      name: "Mix 5 Loại Hạt",
-      price: 155000,
-    },
-  ];
+  useEffect(() => {
+    ProductService.getPublicProducts().then(setProducts).catch(console.error);
+  }, []);
 
   return (
     <div className="bg-[#f3f8f5] text-gray-900">
@@ -131,7 +109,7 @@ export default function Home() {
                 className="bg-white rounded-2xl p-5 shadow-md hover:shadow-lg transition"
               >
                 <img
-                  src={p.img}
+                  src={p.image || "/assets/products/default.png"}
                   alt={p.name}
                   className="w-full h-44 object-cover rounded-xl mb-4"
                 />
@@ -139,18 +117,23 @@ export default function Home() {
                 <h3 className="font-semibold text-base">{p.name}</h3>
 
                 <p className="text-green-600 font-bold mt-1">
-                  {p.price.toLocaleString()}đ
+                  {p.price?.toLocaleString()}đ
                 </p>
 
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    if (!AuthService.getCurrentUser()) {
+                      alert("Vui lòng đăng nhập để mua hàng!");
+                      navigate("/login");
+                      return;
+                    }
                     add({
                       id: p.id,
                       name: p.name,
-                      price: p.price, // ✅ GIÁ ĐÚNG
-                      image: p.img,
-                    })
-                  }
+                      price: p.price,
+                      image: p.image,
+                    });
+                  }}
                   className="mt-3 w-full bg-green-100 text-green-700 py-2 rounded-full text-sm hover:bg-green-200"
                 >
                   Thêm

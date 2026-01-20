@@ -1,6 +1,16 @@
 import AdminNavItem from "./AdminNavItem";
+import AuthService from "../../services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminSidebar() {
+  const user = AuthService.getCurrentUser();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    AuthService.logout();
+    navigate("/login");
+  };
+
   return (
     <aside className="hidden md:flex w-64 flex-col border-r bg-white">
       {/* LOGO */}
@@ -19,8 +29,8 @@ export default function AdminSidebar() {
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <p className="text-sm font-semibold">Đăng Huy</p>
-            <span className="text-xs text-gray-500">Quản trị viên</span>
+            <p className="text-sm font-semibold">{user?.fullName || "Admin"}</p>
+            <span className="text-xs text-gray-500">{user?.role || "Quản trị viên"}</span>
           </div>
         </div>
       </div>
@@ -37,7 +47,10 @@ export default function AdminSidebar() {
 
       {/* LOGOUT */}
       <div className="mt-auto p-4 border-t">
-        <button className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-red-500">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-red-500"
+        >
           ⎋ Đăng xuất
         </button>
       </div>

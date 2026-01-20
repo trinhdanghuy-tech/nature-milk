@@ -1,10 +1,9 @@
 package com.nutmilk.admin.service.admin.impl;
 
 import com.nutmilk.admin.dto.admin.CategoryRequest;
-import com.nutmilk.admin.entity.DanhMucSanPham;
-import com.nutmilk.admin.repository.DanhMucRepository;
+import com.nutmilk.admin.entity.Category;
+import com.nutmilk.admin.repository.CategoryRepository;
 import com.nutmilk.admin.service.admin.CategoryAdminService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,43 +11,37 @@ import java.util.List;
 @Service
 public class CategoryAdminServiceImpl implements CategoryAdminService {
 
-    private final DanhMucRepository repo;
+    private final CategoryRepository repo;
 
-    public CategoryAdminServiceImpl(DanhMucRepository repo) {
+    public CategoryAdminServiceImpl(CategoryRepository repo) {
         this.repo = repo;
     }
 
     @Override
-    public List<DanhMucSanPham> getAll() {
-        return repo.findByTrangThai(1);
+    public List<Category> getAll() {
+        return repo.findAll();
     }
 
     @Override
-    public DanhMucSanPham create(CategoryRequest req) {
-        DanhMucSanPham dm = new DanhMucSanPham();
-        dm.setTenDanhMuc(req.getTenDanhMuc());
-        dm.setMoTa(req.getMoTa());
-        dm.setTrangThai(1);
-        return repo.save(dm);
+    public Category create(CategoryRequest req) {
+        Category c = new Category();
+        c.setName(req.getName());
+        c.setDescription(req.getDescription());
+        return repo.save(c);
     }
 
     @Override
-    public DanhMucSanPham update(Integer id, CategoryRequest req) {
-        DanhMucSanPham dm = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
+    public Category update(Long id, CategoryRequest req) {
+        Category c = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        dm.setTenDanhMuc(req.getTenDanhMuc());
-        dm.setMoTa(req.getMoTa());
-        return repo.save(dm);
+        c.setName(req.getName());
+        c.setDescription(req.getDescription());
+        return repo.save(c);
     }
 
     @Override
-    @Transactional
-    public void delete(Integer id) {
-        DanhMucSanPham dm = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
-
-        dm.setTrangThai(0); // soft delete
-        repo.save(dm);
+    public void delete(Long id) {
+        repo.deleteById(id);
     }
 }

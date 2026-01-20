@@ -1,12 +1,29 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductHero from "../components/product/ProductHero";
 import ProductFilter from "../components/product/ProductFilter";
 import ProductGridCard from "../components/product/ProductGridCard";
-import { products } from "../data/products";
+import ProductService from "../services/product.service";
 
 export default function Products() {
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("popular");
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    ProductService.getPublicProducts().then(data => {
+      // Map data to match ProductGridCard expectation
+      const mapped = data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        image: p.image || "/assets/products/default.png",
+        desc: p.description,
+        rating: 5, // Placeholder
+        category: p.category?.name || "all"
+      }));
+      setProducts(mapped);
+    }).catch(console.error);
+  }, []);
 
   const filtered = useMemo(() => {
     let list =

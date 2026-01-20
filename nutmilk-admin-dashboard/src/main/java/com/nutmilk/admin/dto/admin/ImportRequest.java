@@ -5,25 +5,24 @@ import java.util.List;
 
 public class ImportRequest {
 
-    private Integer maNhaCungCap;
-    private Integer maNhanVien;
+    private Long supplierId;
+    private Long employeeId;
     private List<Item> items;
 
-
-    public Integer getMaNhaCungCap() {
-        return maNhaCungCap;
+    public Long getSupplierId() {
+        return supplierId;
     }
 
-    public void setMaNhaCungCap(Integer maNhaCungCap) {
-        this.maNhaCungCap = maNhaCungCap;
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 
-    public Integer getMaNhanVien() {
-        return maNhanVien;
+    public Long getEmployeeId() {
+        return employeeId;
     }
 
-    public void setMaNhanVien(Integer maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
     }
 
     public List<Item> getItems() {
@@ -35,33 +34,32 @@ public class ImportRequest {
     }
 
     public static class Item {
+        private Long productId;
+        private Integer quantity;
+        private BigDecimal importPrice;
 
-        private Integer maSanPham;
-        private Integer soLuongNhap;
-        private BigDecimal giaNhap;
-
-        public Integer getMaSanPham() {
-            return maSanPham;
+        public Long getProductId() {
+            return productId;
         }
 
-        public void setMaSanPham(Integer maSanPham) {
-            this.maSanPham = maSanPham;
+        public void setProductId(Long productId) {
+            this.productId = productId;
         }
 
-        public Integer getSoLuongNhap() {
-            return soLuongNhap;
+        public Integer getQuantity() {
+            return quantity;
         }
 
-        public void setSoLuongNhap(Integer soLuongNhap) {
-            this.soLuongNhap = soLuongNhap;
+        public void setQuantity(Integer quantity) {
+            this.quantity = quantity;
         }
 
-        public BigDecimal getGiaNhap() {
-            return giaNhap;
+        public BigDecimal getImportPrice() {
+            return importPrice;
         }
 
-        public void setGiaNhap(BigDecimal giaNhap) {
-            this.giaNhap = giaNhap;
+        public void setImportPrice(BigDecimal importPrice) {
+            this.importPrice = importPrice;
         }
     }
 }

@@ -1,11 +1,13 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import RequireAuth from "./routes/RequireAuth";
+import OAuth2RedirectHandler from "./routes/OAuth2RedirectHandler";
 
 import Cart from "./pages/Cart";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 
@@ -22,8 +24,10 @@ export default function App() {
     <Routes>
       {/* ===== USER LAYOUT ===== */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
+        {/* Redirect root to /login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
 
         <Route
           path="/cart"
@@ -54,6 +58,7 @@ export default function App() {
       {/* ===== AUTH ===== */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
     </Routes>
   );
 }

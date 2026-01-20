@@ -5,13 +5,13 @@ type Props = {
 };
 
 export default function ProductRow({ product, onEdit, onDelete }: Props) {
-  const imageSrc = product.hinhAnh
-    ? `http://localhost:8080${product.hinhAnh}`
+  const imageSrc = product.image
+    ? `http://localhost:8080${product.image}`
     : "/placeholder.png";
 
   return (
     <tr className="border-t">
-      {/* SẢN PHẨM (ẢNH + TÊN) */}
+      {/* PRODUCT (IMAGE + NAME) */}
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <img
@@ -20,56 +20,57 @@ export default function ProductRow({ product, onEdit, onDelete }: Props) {
               (e.currentTarget as HTMLImageElement).src = "/placeholder.png";
             }}
             className="h-12 w-12 rounded-lg object-cover border bg-gray-50"
-            alt={product.tenSanPham}
+            alt={product.name}
           />
           <div>
-            <p className="font-medium">{product.tenSanPham}</p>
-            {product.moTa && (
+            <p className="font-medium">{product.name}</p>
+            {product.description && (
               <p className="text-xs text-gray-500 line-clamp-1">
-                {product.moTa}
+                {product.description}
               </p>
             )}
           </div>
         </div>
       </td>
 
-      {/* DANH MỤC */}
+      {/* CATEGORY */}
       <td className="px-6 py-4">
-        {product.tenDanhMuc || (
+        {product.category?.name || (
           <span className="text-gray-400">—</span>
         )}
       </td>
 
-      {/* GIÁ */}
+      {/* PRICE */}
       <td className="px-6 py-4">
-        {Number(product.giaBan).toLocaleString()}đ
+        {Number(product.price).toLocaleString()}đ
       </td>
 
-      {/* TRẠNG THÁI */}
+      {/* STATUS */}
       <td className="px-6 py-4 text-center">
         <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">
-          Còn hàng
+          Available
         </span>
       </td>
 
-      {/* TỒN KHO */}
+      {/* INVENTORY - Placeholder as backend Product entity doesn't strictly carry quantity now */}
       <td className="px-6 py-4 text-right">
-        {product.soLuongTon ?? 0}
+        {/* You might want to fetch inventory or just show placeholder */}
+        <span className="text-gray-400 text-xs">N/A</span>
       </td>
 
-      {/* HÀNH ĐỘNG */}
+      {/* ACTIONS */}
       <td className="px-6 py-4 text-right space-x-2">
         <button
           onClick={onEdit}
           className="rounded-md border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
         >
-          Sửa
+          Edit
         </button>
         <button
           onClick={onDelete}
           className="rounded-md border border-red-500 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
         >
-          Xóa
+          Delete
         </button>
       </td>
     </tr>

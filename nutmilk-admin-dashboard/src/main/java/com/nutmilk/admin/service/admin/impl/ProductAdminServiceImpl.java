@@ -1,80 +1,94 @@
 package com.nutmilk.admin.service.admin.impl;
 
 import com.nutmilk.admin.dto.admin.ProductRequest;
-import com.nutmilk.admin.entity.SanPham;
-import com.nutmilk.admin.entity.Kho;
-import com.nutmilk.admin.repository.SanPhamRepository;
-import com.nutmilk.admin.repository.KhoRepository;
+import com.nutmilk.admin.entity.Category;
+import com.nutmilk.admin.entity.Inventory;
+import com.nutmilk.admin.entity.Product;
+import com.nutmilk.admin.repository.CategoryRepository;
+import com.nutmilk.admin.repository.InventoryRepository;
+import com.nutmilk.admin.repository.ProductRepository;
 import com.nutmilk.admin.service.admin.ProductAdminService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ProductAdminServiceImpl implements ProductAdminService {
 
-    private final SanPhamRepository sanPhamRepo;
-    private final KhoRepository khoRepo;
+    private final ProductRepository productRepo;
+    private final InventoryRepository inventoryRepo;
+    private final CategoryRepository categoryRepo;
 
     public ProductAdminServiceImpl(
-            SanPhamRepository sanPhamRepo,
-            KhoRepository khoRepo
-    ) {
-        this.sanPhamRepo = sanPhamRepo;
-        this.khoRepo = khoRepo;
+            ProductRepository productRepo,
+            InventoryRepository inventoryRepo,
+            CategoryRepository categoryRepo) {
+        this.productRepo = productRepo;
+        this.inventoryRepo = inventoryRepo;
+        this.categoryRepo = categoryRepo;
     }
 
     @Override
-    public List<SanPham> getAll() {
-        return sanPhamRepo.findAll();
+    public List<Product> getAll() {
+        return productRepo.findAll();
     }
 
     @Override
-    public SanPham create(ProductRequest req) {
-        SanPham sp = new SanPham();
-        sp.setTenSanPham(req.getTenSanPham());
-        sp.setGiaBan(req.getGiaBan());
-        sp.setMoTa(req.getMoTa());
-        sp.setMaDanhMuc(req.getMaDanhMuc());
-        sp.setHinhAnh(req.getHinhAnh());
+    public Product create(ProductRequest req) {
+        Product p = new Product();
+        p.setName(req.getName());
+        p.setPrice(req.getPrice());
+        p.setDescription(req.getDescription());
 
-        SanPham saved = sanPhamRepo.save(sp);
+        if (req.getCategoryId() != null) {
+            Category c = categoryRepo.findById(req.getCategoryId()).orElse(null);
+            p.setCategory(c);
+        }
 
-        // tạo tồn kho ban đầu
-        Kho kho = new Kho();
-        kho.setMaSanPham(saved.getMaSanPham());
-        kho.setSoLuongTon(0);
-        kho.setNgayCapNhat(LocalDateTime.now());
-        khoRepo.save(kho);
+        p.setImage(req.getImage());
+        p.setStatus(1); // Active by default
+
+        Product saved = productRepo.save(p);
+
+        // Initialize inventory
+        Inventory inv = new Inventory();
+        inv.setProductId(saved.getId());
+        inv.setQuantity(0);
+        inventoryRepo.save(inv);
 
         return saved;
     }
 
     @Override
-    public SanPham update(Integer id, ProductRequest req) {
-        SanPham sp = sanPhamRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+    public Product update(Long id, ProductRequest req) {
+        Product p = productRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        sp.setTenSanPham(req.getTenSanPham());
-        sp.setGiaBan(req.getGiaBan());
-        sp.setMoTa(req.getMoTa());
-        sp.setMaDanhMuc(req.getMaDanhMuc());
-        sp.setHinhAnh(req.getHinhAnh());
+        p.setName(req.getName());
+        p.setPrice(req.getPrice());
+        p.setDescription(req.getDescription());
 
-        return sanPhamRepo.save(sp);
+        if (req.getCategoryId() != null) {
+            Category c = categoryRepo.findById(req.getCategoryId()).orElse(null);
+            p.setCategory(c);
+        } else {
+            p.setCategory(null);
+        }
+
+        p.setImage(req.getImage());
+
+        return productRepo.save(p);
     }
 
     @Override
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
+        Product p = productRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        SanPham sp = sanPhamRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
-
-        sp.setTrangThai(0); // ngừng bán
-        sanPhamRepo.save(sp);
+        p.setStatus(0); // Soft delete / switch status
+        productRepo.save(p);
     }
 
 }

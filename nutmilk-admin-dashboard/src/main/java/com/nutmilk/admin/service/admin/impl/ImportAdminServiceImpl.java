@@ -12,69 +12,71 @@ import java.time.LocalDateTime;
 @Service
 public class ImportAdminServiceImpl implements ImportAdminService {
 
-    private final PhieuNhapRepository phieuRepo;
-    private final ChiTietPhieuNhapRepository ctRepo;
-    private final KhoRepository khoRepo;
+    private final ImportTicketRepository importTicketRepo;
+    private final ImportDetailRepository importDetailRepo;
+    private final InventoryRepository inventoryRepo;
+    private final ProductRepository productRepo;
 
     public ImportAdminServiceImpl(
-            PhieuNhapRepository phieuRepo,
-            ChiTietPhieuNhapRepository ctRepo,
-            KhoRepository khoRepo
-    ) {
-        this.phieuRepo = phieuRepo;
-        this.ctRepo = ctRepo;
-        this.khoRepo = khoRepo;
+            ImportTicketRepository importTicketRepo,
+            ImportDetailRepository importDetailRepo,
+            InventoryRepository inventoryRepo,
+            ProductRepository productRepo) {
+        this.importTicketRepo = importTicketRepo;
+        this.importDetailRepo = importDetailRepo;
+        this.inventoryRepo = inventoryRepo;
+        this.productRepo = productRepo;
     }
 
     @Override
     @Transactional
-    public Integer createImport(ImportRequest req) {
+    public Long createImport(ImportRequest req) {
 
-        // 1. tạo phiếu nhập
-        PhieuNhapHang phieu = new PhieuNhapHang();
-        phieu.setNgayNhap(LocalDateTime.now());
-        phieu.setMaNhaCungCap(req.getMaNhaCungCap());
-        phieu.setMaNhanVien(req.getMaNhanVien());
+        // 1. Create Import Ticket
+        ImportTicket ticket = new ImportTicket();
+        ticket.setImportDate(LocalDateTime.now());
+        ticket.setSupplierId(req.getSupplierId());
+        ticket.setEmployeeId(req.getEmployeeId());
 
-        PhieuNhapHang savedPhieu = phieuRepo.save(phieu);
+        ImportTicket savedTicket = importTicketRepo.save(ticket);
 
-        // 2. lưu chi tiết + cập nhật kho
+        // 2. Save details + update inventory
         if (req.getItems() == null || req.getItems().isEmpty()) {
-            throw new RuntimeException("Danh sách sản phẩm nhập kho trống");
+            throw new RuntimeException("Import list is empty");
         }
+
         for (ImportRequest.Item item : req.getItems()) {
 
-            ChiTietPhieuNhap ct = new ChiTietPhieuNhap();
+            Product product = productRepo.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + item.getProductId()));
 
-            ChiTietPhieuNhapId id = new ChiTietPhieuNhapId();
-            id.setMaPhieuNhap(savedPhieu.getMaPhieuNhap());
-            id.setMaSanPham(item.getMaSanPham());
+            ImportDetail detail = new ImportDetail();
+            detail.setImportTicket(savedTicket);
+            detail.setProduct(product);
+            detail.setQuantity(item.getQuantity());
+            detail.setImportPrice(item.getImportPrice());
 
-            ct.setId(id);
-            ct.setSoLuongNhap(item.getSoLuongNhap());
-            ct.setGiaNhap(item.getGiaNhap());
+            importDetailRepo.save(detail);
 
-            ctRepo.save(ct);
-
-            ct.setSoLuongNhap(item.getSoLuongNhap());
-            ct.setGiaNhap(item.getGiaNhap());
-            ctRepo.save(ct);
-
-            Kho kho = khoRepo.findByMaSanPham(item.getMaSanPham())
+            // Update Inventory
+            Inventory inventory = inventoryRepo.findByProductId(item.getProductId())
                     .orElseGet(() -> {
-                        Kho newKho = new Kho();
-                        newKho.setMaSanPham(item.getMaSanPham());
-                        newKho.setSoLuongTon(0);
-                        newKho.setNgayCapNhat(LocalDateTime.now());
-                        return newKho;
+                        Inventory newInv = new Inventory();
+                        newInv.setProductId(item.getProductId());
+                        newInv.setQuantity(0);
+                        return newInv;
                     });
 
-            kho.setSoLuongTon(
-                    kho.getSoLuongTon() + item.getSoLuongNhap()
-            );
-            kho.setNgayCapNhat(LocalDateTime.now());
-            khoRepo.save(kho);
+            inventory.setQuantity(inventory.getQuantity() + item.getQuantity());
+            inventoryRepo.save(inventory);
         }
-    return savedPhieu.getMaPhieuNhap();
+
+        return savedTicket.getId();
+    }
+
+    @Override
+    public java.util.List<ImportTicket> getHistory() {
+        return importTicketRepo.findAll(org.springframework.data.domain.Sort
+                .by(org.springframework.data.domain.Sort.Direction.DESC, "importDate"));
     }
 }
